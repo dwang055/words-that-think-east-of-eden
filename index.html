@@ -1011,7 +1011,7 @@ footer {
     <div class="sentence-tab-row">
       <button class="sent-tab active" id="tabNovel">📖 Source Sentence</button>
       <button class="sent-tab" id="tabAI">💡 Example</button>
-      <button class="sent-tab" id="tabSpell">✏️ Spell It</button>
+      <button class="sent-tab" id="tabFlashcard">📇 Flashcard</button>
     </div>
 
     <div class="sentence-content" id="sentenceContent">
@@ -3236,8 +3236,12 @@ function render() {
   document.getElementById('antChips').innerHTML = sa.ant.map(w => `<span class="synan-chip ant">${w}</span>`).join('');
   document.getElementById('synanBlock').style.display = (sa.syn.length || sa.ant.length) ? 'flex' : 'none';
 
-  document.getElementById('tabSpell').classList.toggle('active', S.sentTab === 2);
-  document.getElementById('flashcardContainer').style.display = S.sentTab === 2 ? 'block' : 'none'; if (S.sentTab === 2) renderFlashcard();
+  const tabFlash = document.getElementById('tabFlashcard'); if (tabFlash) tabFlash.classList.toggle('active', S.sentTab === 2);
+  const flashcardContainer = document.getElementById('flashcardContainer');
+  if (flashcardContainer) {
+    flashcardContainer.style.display = S.sentTab === 2 ? 'block' : 'none';
+    if (S.sentTab === 2) renderFlashcard();
+  }
   document.getElementById('sentenceContent').style.display = S.sentTab === 2 ? 'none' : 'block';
   if (S.sentTab === 2) renderSpell();
 
@@ -3833,7 +3837,8 @@ document.getElementById('starBtn').addEventListener('click', toggleStar);
 document.getElementById('speakBtn2').addEventListener('click', () => speak(GROUPS[S.gIdx][S.wIdx].word));
 document.getElementById('tabNovel').addEventListener('click', () => { S.sentTab = 0; render(); });
 document.getElementById('tabAI').addEventListener('click',   () => { S.sentTab = 1; render(); });
-document.getElementById('tabFlashcard').addEventListener('click', () => { S.sentTab = 2; flashcardState.index = 0; render(); renderFlashcard(); });
+const tabFlashcard = document.getElementById('tabFlashcard');
+if (tabFlashcard) tabFlashcard.addEventListener('click', () => { S.sentTab = 2; flashcardState.index = 0; render(); if (document.getElementById('flashcardContainer')) renderFlashcard(); });
 document.getElementById('mySentSaveBtn').addEventListener('click', addSentence);
 document.getElementById('mySentInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); addSentence(); }
@@ -3897,30 +3902,16 @@ document.getElementById('starredToggleBtn').addEventListener('click', () => {
   icon.classList.add('open');
   document.getElementById('starredSection').scrollIntoView({ behavior: 'smooth' });
 });
-document.getElementById('spellInput').addEventListener('input', e => {
-  updateBoxes(e.target.value);
-});
-document.getElementById('spellInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') { e.preventDefault(); checkSpelling(); }
-});
-document.getElementById('spellCheckBtn').addEventListener('click', checkSpelling);
-document.getElementById('flashPrevBtn').addEventListener('click', flashcardPrev);
-document.getElementById('flashNextBtn').addEventListener('click', flashcardNext);
-document.getElementById('flashStarBtn').addEventListener('click', toggleFlashcardStar);
-document.getElementById('spellRevealBtn').addEventListener('click', () => {
-  const word = GROUPS[S.gIdx][S.wIdx].word;
-  const fb = document.getElementById('spellFeedback');
-  fb.className = 'spell-feedback err';
-  fb.textContent = 'The word is "' + word + '". Try again next time!';
-  fb.style.display = 'block';
-  document.getElementById('spellRevealBtn').style.display = 'none';
-  const allBoxes = document.querySelectorAll('.spell-box');
-  const wordClean = word.toLowerCase().replace(/-/g,'');
-  allBoxes.forEach((b, i) => {
-    b.className = 'spell-box wrong';
-    b.textContent = wordClean[i] || '';
-  });
-});
+// [Spell listener removed - Spell tab replaced with Flashcard]
+// [Spell listener removed - Spell tab replaced with Flashcard]
+// // [Spell listener removed - Spell tab replaced with Flashcard] /* REMOVED - Spell tab no longer exists */
+const flashPrevBtn = document.getElementById('flashPrevBtn');
+if (flashPrevBtn) flashPrevBtn.addEventListener('click', flashcardPrev);
+const flashNextBtn = document.getElementById('flashNextBtn');
+if (flashNextBtn) flashNextBtn.addEventListener('click', flashcardNext);
+const flashStarBtn = document.getElementById('flashStarBtn');
+if (flashStarBtn) flashStarBtn.addEventListener('click', toggleFlashcardStar);
+// // [Spell listener removed - Spell tab replaced with Flashcard]
 document.addEventListener('keydown', e => {
   const tag = document.activeElement.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
@@ -4172,6 +4163,9 @@ function toggleFlashcard() {
 }
 
 function renderFlashcard() {
+  const container = document.getElementById('flashcardContainer');
+  if (!container) return; // Exit if flashcard container doesn't exist
+  
   const group = GROUPS[S.gIdx];
   const entry = group[flashcardState.index];
   const isStarred = S.starred.has(entry.word);
@@ -4256,3 +4250,4 @@ if (VOCAB.length > 1) {
 </div>
 </body>
 </html>
+
